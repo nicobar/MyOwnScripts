@@ -1,25 +1,11 @@
 import pexpect
 import json
 
-
-# class data_auth:
-#     
-#     def __init__(self, auth_filename):
-#         self.auth_filename = auth_filename
-#         self.data_auth = self.__get_auth_data(self)
-#     
-#     def __get_auth_data(self):
-#         with open(self.auth_filename) as f:
-#             return json.load(f)
-#         
-
 class remote_cmd:
     def __init__(self, conn_filename):
         
-        #self.base_dir = '/mnt/hgfs/VM_shared/MyOwnScripts/getcommand/'
         self.conn_filename = conn_filename
         self.data_conn = self.__get_conn_data()
-        #self.conn_filename = self.data_conn[0]["base_dir"] + conn_filename
         self.node_name_list = self.__get_node_name_list()
 
     def populate_dir_with_show_command(self):
@@ -43,27 +29,12 @@ class remote_cmd:
     def __get_remote_cmd(self, node_name, cmd, fname):
         ''' This function read devices names from file,
          connects to them and write on file output of a file '''
-
-
-#         bridge_name = '10.192.10.8'
-#         myusername = 'zzasp70'
-#         mybridgepwd = 'S!Pr0094'
-#         mytacacspwd = '!SPra0094'
-#         base_dir = "/mnt/hgfs/VM_shared/Scripts/21062018/" 
-#         device_names_file = "devices_XR_unique_sorted.txt"
-#         cmd_list = ["show rpl route-policy",
-#                     "show rpl community-set"]
-#                     
-
     
-        cmd_ssh_bridge = 'ssh -y ' + self.data_conn[0]["myusername"] + '@' + self.data_conn[0]["bridge_name"]
-    
+        cmd_ssh_bridge = 'ssh -y ' + self.data_conn[0]["myusername"] + '@' + self.data_conn[0]["bridge_name"]  
         cmd_telnet_node = 'telnet ' + node_name
-    
         file_name = node_name + '_' + fname + '.txt'
-    
         string_to_expect = str.upper(node_name)  + '#'
-        
+                
         child = pexpect.spawn(cmd_ssh_bridge, encoding='utf-8', codec_errors='replace')
     
         child.expect('Password: ')
@@ -83,12 +54,11 @@ class remote_cmd:
     
         with open(self.data_conn[0]["base_dir"] + file_name, 'w') as fout:
             child.logfile_read = fout
-            #child.logfile_read = sys.stdout
             child.expect(string_to_expect)
-            #child.expect(pexpect.EOF)
     
         child.terminate()
 
+#### MAIN ###
 
 create_show_cmd_files = remote_cmd('/mnt/hgfs/VM_shared/MyOwnScripts/getcommand/conn_data.txt')
 create_show_cmd_files.populate_dir_with_show_command()
