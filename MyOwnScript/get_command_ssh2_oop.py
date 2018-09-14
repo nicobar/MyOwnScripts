@@ -58,7 +58,24 @@ class remote_cmd:
     
         child.terminate()
 
+
+
+
 #### MAIN ###
+
+# cat /mnt/hgfs/VM_shared/MyOwnScripts/getcommand/conn_data.txt
+# [{
+#   "bridge_name": "10.192.10.8",
+#   "myusername": "zzasp70",
+#   "mybridgepwd": "S!Pr0094",
+#   "mytacacspwd": "!SPra0094",
+#   "base_dir": "/mnt/hgfs/VM_shared/MyOwnScripts/getcommand/", 
+#   "device_names_file": "devices_XR_unique_sorted.txt",
+#   "cmd_list":  [
+#                 "show rpl route-policy",
+#                 "show rpl community-set"
+#                 ]
+# }]
 
 create_show_cmd_files = remote_cmd('/mnt/hgfs/VM_shared/MyOwnScripts/getcommand/conn_data.txt')
 create_show_cmd_files.populate_dir_with_show_command()
