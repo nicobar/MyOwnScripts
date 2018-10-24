@@ -1,5 +1,6 @@
 import pexpect
 import json
+import ciscoconfparse as c
 from os import listdir
 from os.path import isfile, join
 
@@ -71,7 +72,7 @@ class text_analisys:
         with open (self.conn_filename) as f:
             return json.load(f)
         
-    def create_output(self):
+    def create_output_vpe(self):
         ''' from <switches_>_command files creates output_commnad file
         with "<switch> command output" as lines '''
 
@@ -98,7 +99,33 @@ class text_analisys:
                     fout.write(right_line)
         print('end writing')
 
+    def create_output_osw(self):
+        ''' from <switches_>_command files creates output_commnad file
+        with "<switch> command output" as lines '''
 
+        text_list = []
+        file_list = [f for f in listdir(self.json_data[0]["base_dir"]) if isfile(join(self.json_data[0]["base_dir"], f)) and "OSW" in f]
+        for file in file_list:
+           
+            list_f = file.split('_')
+            node = list_f[0]
+            
+            cfg = self.json_data[0]["base_dir"] + file
+            parse = c.CiscoConfParse(cfg)
+            obj_if_list = parse.find_objects_w_child('^interface .*Ethernet', 'service-policy')
+            
+            if len(obj_if_list) > 0:
+                for obj_if in obj_if_list:
+                    line = node + " " + obj_if.text
+                    for obj_if_child in obj_if.all_children:
+                        if "service-policy" in  obj_if_child.text:
+                            line = line + "\t" + obj_if_child.text 
+                    text_list.append(line)
+        text = '\n'.join(text_list)
+        print(text)
+        with open(self.json_data[0]["base_dir"] + self.json_data[0]["output_file_name"], 'a') as fout:              
+            fout.write(text)
+        print('end writing')
 
 #### MAIN ###
 
@@ -119,8 +146,8 @@ class text_analisys:
 
 if __name__ == "__main__":
     
-    json_file = '/mnt/hgfs/VM_shared/MyOwnScripts/get_rd/conn_data.txt'
-#    create_show_cmd_files = remote_cmd(json_file)
-#    create_show_cmd_files.populate_dir_with_show_command()
+    json_file = '/mnt/hgfs/VM_shared/MyOwnScripts/get_service_policy_osw/conn_data.json'
+    create_show_cmd_files = remote_cmd(json_file)
+    create_show_cmd_files.populate_dir_with_show_command()
     testo = text_analisys(json_file)
-    testo.create_output()
+    testo.create_output_osw()
