@@ -45,6 +45,9 @@ class remote_cmd:
         child.expect('\$')
     
         child.sendline(cmd_telnet_node)
+#         if "vce" in node_name or "vsw" in node_name:
+#             child.expect('login: ')
+#         else:
         child.expect('login: ')
         child.sendline(self.json_data[0]["myusername"])
         child.expect('Password: ')
@@ -140,13 +143,13 @@ class text_analisys:
             
             cfg = self.json_data[0]["base_dir"] + file
             parse = c.CiscoConfParse(cfg)
-            obj_if_list = parse.find_objects_w_child(r'^Ethernet', r'type is QSFP-40G-SR-BD')
+            obj_if_list = parse.find_objects_w_child(r'^interface Ethernet', r'ip address')
             
             if len(obj_if_list) > 0:
                 for obj_if in obj_if_list:
                     line = node + " " + obj_if.text
                     for obj_if_child in obj_if.all_children:
-                        if "serial number" in  obj_if_child.text:
+                        if "area" in  obj_if_child.text:
                             line = line + "\t" + obj_if_child.text 
                     text_list.append(line)
         text = '\n'.join(text_list)
@@ -174,7 +177,7 @@ class text_analisys:
 
 if __name__ == "__main__":
     
-    json_file = '/mnt/hgfs/VM_shared/MyOwnScripts/get_vce_inventory/conn_data.json'
+    json_file = '/mnt/hgfs/VM_shared/MyOwnScripts/get_vce_routed_if/conn_data.json'
 #    create_show_cmd_files = remote_cmd(json_file)
 #    create_show_cmd_files.populate_dir_with_show_command()
     testo = text_analisys(json_file)
